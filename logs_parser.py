@@ -144,9 +144,9 @@ class LogsData:
         for i in range(len(self.plots)):
             line = [str(i + 1)]
             plot = self.plots[i]
-            for i in range(4):
-                if i < len(plot.phases):
-                    line += [td_to_str(plot.phases[i].time)]
+            for j in range(4):
+                if j < len(plot.phases):
+                    line += [td_to_str(plot.phases[j].time)]
                 else:
                     line += ["-"]
             line += [td_to_str(plot.total_time)]
