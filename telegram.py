@@ -10,7 +10,7 @@ bot = telebot.TeleBot(config["telegram_bot_token"], parse_mode=None)
 
 @bot.message_handler(commands=['start', 'help'])
 def support(message):
-    bot.send_message(message.chat.id, "List all config files: /list")
+    bot.send_message(message.chat.id, "List all available log files: /list\nNumber of plotted blocks per day: /stats")
 
 
 def generate_receptions_markup():

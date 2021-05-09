@@ -70,11 +70,11 @@ def td_to_str(timedelta: datetime.timedelta):
     minutes = seconds % (60 * 60) // 60
     seconds = seconds % 60
     if days > 0:
-        return f"{days}d{hours if hours else ''}"
+        return f"{days}d{hours or ''}"
     if hours > 0:
-        return f"{hours}h{minutes if minutes else ''}"
+        return f"{hours}h{minutes or ''}"
     if minutes > 0:
-        return f"{minutes}m{seconds if seconds else ''}"
+        return f"{minutes}m{seconds or ''}"
     else:
         return f"{seconds}s"
 
@@ -101,13 +101,13 @@ class PlotData:
             return None
 
     @staticmethod
-    def time_for_phase(text, phase_num):
+    def get_time_for_phase(text, phase_num):
         line = PlotData.phase_line(text, phase_num)
         time = datetime.timedelta(seconds=int(float(re.findall(r"\d+\.\d+", line)[0])))
         return time
 
     @staticmethod
-    def total_time(text):
+    def get_total_time(text):
         results = re.findall(fr"Total time.*\n", text)
         if results:
             line = results[0]
@@ -117,7 +117,7 @@ class PlotData:
             return None
 
     @staticmethod
-    def finish_date(text):
+    def get_finish_date(text):
         results = re.findall(fr"Total time.*\n", text)
         if results:
             line = results[0]
@@ -128,14 +128,9 @@ class PlotData:
             return None
 
     def __init__(self, text):
-        self.phases = [
-            PhaseData(PlotData.time_for_phase(text, 1)),
-            PhaseData(PlotData.time_for_phase(text, 2)),
-            PhaseData(PlotData.time_for_phase(text, 3)),
-            PhaseData(PlotData.time_for_phase(text, 4)),
-        ]
-        self.total_time = PlotData.total_time(text)
-        self.finish_date = PlotData.finish_date(text)
+        self.phases = [PhaseData(PlotData.get_time_for_phase(text, i)) for i in range(1, 5)]
+        self.total_time = PlotData.get_total_time(text)
+        self.finish_date = PlotData.get_finish_date(text)
 
 
 class LogsData:
