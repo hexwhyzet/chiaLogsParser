@@ -41,4 +41,4 @@ def send_stats(query):
 
 
 if __name__ == '__main__':
-    bot.polling(interval=2)
+    bot.polling(interval=config["polling_interval"])

@@ -1,5 +1,6 @@
 {
   "telegram_bot_token": "",
+  "polling_interval": 5,
   "logs_directories": [
     ""
   ]
