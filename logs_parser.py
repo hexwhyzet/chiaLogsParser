@@ -175,7 +175,7 @@ class LogsData:
         return new_table
 
 
-def all_day_stats():
+def all_days_stats():
     counter = defaultdict(int)
     for _, full_path in get_logs_paths():
         logs_data = LogsData(full_path)
@@ -186,6 +186,6 @@ def all_day_stats():
     return list(map(lambda date: (datetime.datetime.strftime(date[0], "%b %d"), date[1]), items))
 
 
-def all_day_stats_telegram_format():
-    stats = all_day_stats()
+def all_days_stats_telegram_format():
+    stats = all_days_stats()
     return "\n".join("    ".join(map(str, stat)) for stat in stats)
