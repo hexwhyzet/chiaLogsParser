@@ -1,7 +1,7 @@
 import telebot
 
 from config import Config
-from logs_parser import get_logs_paths, does_this_log_filepath_exists, LogsData
+from logs_parser import get_logs_paths, does_this_log_filepath_exists, LogsData, all_day_stats_telegram_format
 
 config = Config()
 
@@ -26,6 +26,11 @@ def list_logs_files(message):
                      reply_markup=generate_receptions_markup())
 
 
+@bot.message_handler(commands=['stats'])
+def stats(message):
+    bot.send_message(message.chat.id, "Number of plots created:\n" + all_day_stats_telegram_format())
+
+
 @bot.callback_query_handler(func=lambda query: does_this_log_filepath_exists(query.data))
 def send_stats(query):
     bot.send_message(
@@ -36,4 +41,4 @@ def send_stats(query):
 
 
 if __name__ == '__main__':
-    bot.polling(interval=10)
+    bot.polling(interval=2)

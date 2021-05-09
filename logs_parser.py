@@ -2,6 +2,7 @@ import datetime
 import glob
 import os
 import re
+from collections import defaultdict
 from dataclasses import dataclass
 from typing import List
 
@@ -89,11 +90,15 @@ class PlotData:
     """
     phases: List[PhaseData]
     total_time: datetime.timedelta
+    finish_date: datetime.datetime = None
 
     @staticmethod
     def phase_line(text, phase_num):
         results = re.findall(fr"Time for phase {phase_num}.*\n", text)
-        return results[0]
+        if results:
+            return results[0]
+        else:
+            return None
 
     @staticmethod
     def time_for_phase(text, phase_num):
@@ -103,9 +108,24 @@ class PlotData:
 
     @staticmethod
     def total_time(text):
-        line = re.findall(fr"Total time.*\n", text)[0]
-        time = datetime.timedelta(seconds=int(float(re.findall(r"\d+\.\d+", line)[0])))
-        return time
+        results = re.findall(fr"Total time.*\n", text)
+        if results:
+            line = results[0]
+            time = datetime.timedelta(seconds=int(float(re.findall(r"\d+\.\d+", line)[0])))
+            return time
+        else:
+            return None
+
+    @staticmethod
+    def finish_date(text):
+        results = re.findall(fr"Total time.*\n", text)
+        if results:
+            line = results[0]
+            time_string = line.split(")")[-1].strip()
+            time = datetime.datetime.strptime(time_string, "%a %b %d %H:%M:%S %Y")
+            return time
+        else:
+            return None
 
     def __init__(self, text):
         self.phases = [
@@ -115,6 +135,7 @@ class PlotData:
             PhaseData(PlotData.time_for_phase(text, 4)),
         ]
         self.total_time = PlotData.total_time(text)
+        self.finish_date = PlotData.finish_date(text)
 
 
 class LogsData:
@@ -157,3 +178,19 @@ class LogsData:
         for line in table:
             new_table += "".join(line[i].ljust(column_widths[i]) for i in range(len(table[0]))) + "\n"
         return new_table
+
+
+def all_day_stats():
+    counter = defaultdict(int)
+    for _, full_path in get_logs_paths():
+        logs_data = LogsData(full_path)
+        for plot in logs_data.plots:
+            if plot.finish_date is not None:
+                counter[plot.finish_date.date()] += 1
+    items = list(sorted(counter.items()))
+    return list(map(lambda date: (datetime.datetime.strftime(date[0], "%b %d"), date[1]), items))
+
+
+def all_day_stats_telegram_format():
+    stats = all_day_stats()
+    return "\n".join("    ".join(map(str, stat)) for stat in stats)
